@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Admin;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\UserResetPassword;
 use App\Models\AdminResetPassword;
 use App\Http\Controllers\Controller;
 use App\Notifications\AdminPasswordReset;
@@ -26,7 +28,51 @@ class ForgotPasswordController extends Controller
 
     use SendsPasswordResetEmails;
 
-    public function passwordEmail(Request $request)
+    public function userPasswordEmail(Request $request)
+    {
+        $this->validate($request, [
+            'email' => 'required|email'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            $data = UserResetPassword::create([
+                'email' => $request->email,
+                'code' => $this->generateRandomString(),
+                'token' => Str::random(60),
+                'code_expires_at' => Carbon::now()->addMinutes(5)->timestamp,
+            ]);
+
+            //$this->sendMail($data);
+
+            return response()->json(['data' => $data->token], 200);
+        }else {
+            return response()->json(['errors' => [
+                'verification' => ["User does not exist"]
+            ]], 422);
+        }
+    }
+
+    public function userPasswordCode(Request $request)
+    {
+        $this->validate($request, [
+            'token' => 'required|string',
+            'code' => 'required|string'
+        ]);
+
+        $data = UserResetPassword::where('token', $request->token)->latest()->first();
+
+        if ($data->code === $request->code) {
+            return response()->json(['data' => $data->token], 200);
+        }else {
+            return response()->json(['errors' => [
+                'verification' => ["Invalid code"]
+            ]], 422);
+        }
+    }
+
+    public function adminPasswordEmail(Request $request)
     {
         $this->validate($request, [
             'email' => 'required|email'
@@ -52,7 +98,7 @@ class ForgotPasswordController extends Controller
         }
     }
 
-    public function passwordCode(Request $request)
+    public function adminPasswordCode(Request $request)
     {
         $this->validate($request, [
             'token' => 'required|string',

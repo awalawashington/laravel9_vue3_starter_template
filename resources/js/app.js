@@ -18,6 +18,9 @@ app.component('admin-settings-account', require('./components/admin/settings/Acc
 app.component('admin-settings-profile', require('./components/admin/settings/Profile').default);
 app.component('admin-settings-password', require('./components/admin/settings/Password').default);
 
+app.component('user-password', require('./components/user/auth/password_reset/Password').default);
+app.component('user-registration', require('./components/user/auth/registration/Registration').default);
+
 app.use(ElementPlus)
 app.mount("#app");
 

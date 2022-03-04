@@ -14,9 +14,9 @@ Route::prefix('admin')->name('admin.')->group(function(){
           Route::post('/login',[LoginController::class ,'adminLogin'])->name('check');
 
           Route::view('/password_reset','admin.auth.password_reset')->name('password_reset');
-          Route::post('/password/email',[ForgotPasswordController::class ,'passwordEmail'])->name('password.email');
-          Route::post('/password/code',[ForgotPasswordController::class ,'passwordCode'])->name('password.code');
-          Route::put('/password/reset',[ResetPasswordController::class ,'passwordReset'])->name('password.reset');
+          Route::post('/password/email',[ForgotPasswordController::class ,'adminPasswordEmail'])->name('password.email');
+          Route::post('/password/code',[ForgotPasswordController::class ,'adminPasswordCode'])->name('password.code');
+          Route::put('/password/reset',[ResetPasswordController::class ,'adminPasswordReset'])->name('password.reset');
     });
 
     Route::middleware(['auth:admin'])->group(function(){

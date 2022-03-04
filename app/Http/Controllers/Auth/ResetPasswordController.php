@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\User;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use App\Rules\MatchOldPassword;
 use App\Rules\CheckSamePassword;
+use App\Models\UserResetPassword;
 use App\Models\AdminResetPassword;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
@@ -34,7 +36,36 @@ class ResetPasswordController extends Controller
      */
     protected $redirectTo = RouteServiceProvider::HOME;
 
-    public function passwordReset(Request $request)
+    public function userPasswordReset(Request $request)
+    {
+        $data = UserResetPassword::where('token', $request->token)->latest()->first();
+        $user = User::where('email' , $data->email)->first();
+        $this->validate($request, [
+            'password_confirmation' => ['required'],
+            'password' => [
+                'required', 
+                'confirmed',
+                Password::min(8)
+                ->mixedCase()
+                ->letters()
+                ->numbers()
+                ->symbols()
+                ->uncompromised()
+            ]
+        ]);
+
+        if ($data) {
+            $user = User::where('email' , $data->email)->first();
+
+            $user->update([
+                "password" => bcrypt($request->password) 
+            ]);
+
+            UserResetPassword::where('email' , $data->email)->delete();
+        }
+    }
+
+    public function adminPasswordReset(Request $request)
     {
         $data = AdminResetPassword::where('token', $request->token)->latest()->first();
         $user = Admin::where('email' , $data->email)->first();

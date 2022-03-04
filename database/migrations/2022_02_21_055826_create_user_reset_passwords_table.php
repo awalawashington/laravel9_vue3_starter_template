@@ -15,7 +15,12 @@ return new class extends Migration
     {
         Schema::create('user_reset_passwords', function (Blueprint $table) {
             $table->id();
+            $table->string('email');
+            $table->string('code');
+            $table->timestamp('code_expires_at');
+            $table->string('token');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

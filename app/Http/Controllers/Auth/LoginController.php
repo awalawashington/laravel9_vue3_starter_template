@@ -66,7 +66,7 @@ class LoginController extends Controller
         return redirect()->route('admin.login')->with('fail','Incorrect credentials');
     }
 
-    public function studentLogin(Request $request)
+    public function userLogin(Request $request)
     {
         $this->validate($request, [
             'email' => 'required|email',
@@ -74,17 +74,17 @@ class LoginController extends Controller
         ]);
         
         if (Auth::guard('web')->attempt(['email' => $request->email, 'password' => $request->password])) {
-            return redirect()->route('student.dashboard');
+            return redirect()->route('user.dashboard');
         }
-        return redirect()->route('student.login')->with('fail','Incorrect credentials');
+        return redirect()->route('user.login')->with('fail','Incorrect credentials');
     }
 
 
-    function studentLogout(Request $request){
+    function userLogout(Request $request){
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('student/login');
+        return redirect('user/login');
     }
 
     function adminLogout(Request $request){
